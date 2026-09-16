@@ -3,6 +3,8 @@ import L from 'leaflet';
 import { useMap } from 'react-leaflet'; 
 import { CircleMarker, Popup } from 'react-leaflet';
 
+var circle;
+
 export default function LocationMarker() {
     const [position, setPosition] = useState(null);
     const [bbox, setBbox] = useState([]);
@@ -10,11 +12,13 @@ export default function LocationMarker() {
     const map = useMap();
 
     useEffect(() => {
-      map.locate().on("locationfound", function (e) {
+      map.locate({watch: true}).on("locationfound", function (e) {
         setPosition(e.latlng);
         //map.flyTo(e.latlng, map.getZoom());
+
+        if (circle) { map.removeLayer(circle); } 
         const radius = e.accuracy;
-        const circle = L.circle(e.latlng, radius);
+        circle = L.circle(e.latlng, radius);
         circle.addTo(map);
         setBbox(e.bounds.toBBoxString().split(","));
       });
